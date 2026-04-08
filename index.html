@@ -2,36 +2,60 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Pico 4 Ultra VR Diamant</title>
+<title>Pico 4 Ultra VR Diamant – freier Griffpunkt</title>
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
-<script src="https://unpkg.com/super-hands@3.0.4/dist/super-hands.min.js"></script>
 
 <script>
-// Component, damit das Modell Handbewegungen folgen kann
-AFRAME.registerComponent('follow-hand', {
+// Komponente: Modell folgt Hand mit flexiblem Griffpunkt
+AFRAME.registerComponent('grab-with-offset', {
   schema: { hand: {type: 'selector'} },
+  
   init: function() {
     this.grabbed = false;
+    this.offset = new THREE.Vector3();
+    this.quatOffset = new THREE.Quaternion();
 
     // Grip gedrückt → greifen
-    this.data.hand.addEventListener('gripdown', () => { this.grabbed = true; });
+    this.data.hand.addEventListener('gripdown', evt => {
+      // Weltposition des Hand-Events
+      const handPos = new THREE.Vector3();
+      this.data.hand.object3D.getWorldPosition(handPos);
+
+      // Modellposition Welt
+      const modelPos = new THREE.Vector3();
+      this.el.object3D.getWorldPosition(modelPos);
+
+      // Differenz merken
+      this.offset.copy(modelPos).sub(handPos);
+
+      // Quaternion-Differenz merken
+      const handQuat = new THREE.Quaternion();
+      this.data.hand.object3D.getWorldQuaternion(handQuat);
+      const modelQuat = this.el.object3D.getWorldQuaternion(new THREE.Quaternion());
+      this.quatOffset.copy(handQuat.inverse()).multiply(modelQuat);
+
+      this.grabbed = true;
+    });
 
     // Grip losgelassen → loslassen
-    this.data.hand.addEventListener('gripup', () => { this.grabbed = false; });
+    this.data.hand.addEventListener('gripup', evt => { this.grabbed = false; });
   },
+
   tick: function() {
     if(this.grabbed) {
-      // Hand-Position und -Rotation auslesen
+      // Handposition + Rotation
       const handPos = new THREE.Vector3();
       const handQuat = new THREE.Quaternion();
       this.data.hand.object3D.getWorldPosition(handPos);
       this.data.hand.object3D.getWorldQuaternion(handQuat);
 
-      // Modell auf Hand übertragen
-      this.el.object3D.position.copy(handPos);
-      this.el.object3D.quaternion.copy(handQuat);
+      // Offset anwenden
+      const newPos = new THREE.Vector3().copy(this.offset).applyQuaternion(handQuat).add(handPos);
+      const newQuat = new THREE.Quaternion().copy(handQuat).multiply(this.quatOffset);
+
+      this.el.object3D.position.copy(newPos);
+      this.el.object3D.quaternion.copy(newQuat);
     }
   }
 });
@@ -46,7 +70,7 @@ AFRAME.registerComponent('follow-hand', {
     <a-asset-item id="diamantModel" src="Diamant.glb"></a-asset-item>
   </a-assets>
 
-  <!-- Spieler Rig -->
+  <!-- Player Rig -->
   <a-entity id="rig" movement-controls="speed:0.25">
     <a-entity camera position="0 1.6 0" look-controls></a-entity>
 
@@ -68,7 +92,7 @@ AFRAME.registerComponent('follow-hand', {
     id="diamant"
     position="0 1.5 -2"
     scale="0.25 0.25 0.25"
-    follow-hand="hand: #leftHand">
+    grab-with-offset="hand: #leftHand">
     <a-entity gltf-model="#diamantModel" scale="1 1 1"></a-entity>
   </a-entity>
 
