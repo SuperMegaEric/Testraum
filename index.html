@@ -5,37 +5,33 @@
 <title>Pico 4 Ultra VR Diamant</title>
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+<script src="https://unpkg.com/super-hands@3.0.4/dist/super-hands.min.js"></script>
 
 <script>
-AFRAME.registerComponent('grab-parent', {
-  init: function () {
+// Component, damit das Modell Handbewegungen folgen kann
+AFRAME.registerComponent('follow-hand', {
+  schema: { hand: {type: 'selector'} },
+  init: function() {
     this.grabbed = false;
-    this.originalParent = this.el.parentEl;
-    this.leftHand = document.querySelector('#leftHand');
-    this.rightHand = document.querySelector('#rightHand');
 
-    // Grip gedrückt
-    this.leftHand.addEventListener('gripdown', () => this.grab(this.leftHand));
-    this.rightHand.addEventListener('gripdown', () => this.grab(this.rightHand));
+    // Grip gedrückt → greifen
+    this.data.hand.addEventListener('gripdown', () => { this.grabbed = true; });
 
-    // Grip losgelassen
-    this.leftHand.addEventListener('gripup', () => this.release());
-    this.rightHand.addEventListener('gripup', () => this.release());
+    // Grip losgelassen → loslassen
+    this.data.hand.addEventListener('gripup', () => { this.grabbed = false; });
   },
-  
-  grab: function(hand) {
-    if (!this.grabbed) {
-      hand.appendChild(this.el);
-      this.grabbed = true;
-    }
-  },
-  
-  release: function() {
-    if (this.grabbed) {
-      this.originalParent.appendChild(this.el);
-      this.grabbed = false;
+  tick: function() {
+    if(this.grabbed) {
+      // Hand-Position und -Rotation auslesen
+      const handPos = new THREE.Vector3();
+      const handQuat = new THREE.Quaternion();
+      this.data.hand.object3D.getWorldPosition(handPos);
+      this.data.hand.object3D.getWorldQuaternion(handQuat);
+
+      // Modell auf Hand übertragen
+      this.el.object3D.position.copy(handPos);
+      this.el.object3D.quaternion.copy(handQuat);
     }
   }
 });
@@ -50,7 +46,7 @@ AFRAME.registerComponent('grab-parent', {
     <a-asset-item id="diamantModel" src="Diamant.glb"></a-asset-item>
   </a-assets>
 
-  <!-- Player Rig -->
+  <!-- Spieler Rig -->
   <a-entity id="rig" movement-controls="speed:0.25">
     <a-entity camera position="0 1.6 0" look-controls></a-entity>
 
@@ -67,13 +63,12 @@ AFRAME.registerComponent('grab-parent', {
     </a-entity>
   </a-entity>
 
-  <!-- Diamant-Modell -->
+  <!-- Diamant-Modell (1/4 Größe) -->
   <a-entity
     id="diamant"
-    class="interactable"
     position="0 1.5 -2"
-    scale="1 1 1"
-    grab-parent>
+    scale="0.25 0.25 0.25"
+    follow-hand="hand: #leftHand">
     <a-entity gltf-model="#diamantModel" scale="1 1 1"></a-entity>
   </a-entity>
 
