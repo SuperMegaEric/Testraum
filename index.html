@@ -12,35 +12,13 @@
 
 <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
 
-<script>
-AFRAME.registerComponent('toggle-hitbox', {
 
-init: function () {
-
-let visible = true;
-
-window.addEventListener('abuttondown', () => {
-
-visible = !visible;
-
-document.querySelectorAll('.interactable').forEach(el => {
-
-el.setAttribute('visible', visible);
-
-});
-
-});
-
-}
-
-});
-</script>
   
 </head>
 
 <body>
 
-<a-scene toggle-hitbox>
+<a-scene>
 
 <!-- Umgebung -->
 <a-entity environment="preset: forest; skyType: atmosphere; skyColor: #88ccee"></a-entity>
@@ -63,7 +41,7 @@ id="leftHand"
 laser-controls="hand: left"
 tracked-controls="hand: left"
 super-hands="grabStartButtons: gripdown; grabEndButtons: gripup; stretchStartButtons: gripdown; stretchEndButtons: gripup"
-sphere-collider="objects: .interactable; radius: 0.25">
+sphere-collider="objects: .interactable; radius: 0.35">
 </a-entity>
 
 <!-- rechte Hand -->
@@ -72,7 +50,7 @@ id="rightHand"
 laser-controls="hand: right"
 tracked-controls="hand: right"
 super-hands="grabStartButtons: gripdown; grabEndButtons: gripup; stretchStartButtons: gripdown; stretchEndButtons: gripup"
-sphere-collider="objects: .interactable; radius: 0.25">
+sphere-collider="objects: .interactable; radius: 0.35">
 </a-entity>
 
 </a-entity>
@@ -82,36 +60,36 @@ sphere-collider="objects: .interactable; radius: 0.25">
 <a-entity
 class="interactable"
 position="-10 1.5 -10"
-gltf-model="#diamantModel"
-scale="0.5 0.5 0.5"
-  grabbable="usePhysics:false; invert:false; suppressY:false"
 grabbable
 stretchable
-draggable>
-</a-entity>
+draggable
+rotatable>
 
-</a-box>
+    <a-entity
+    gltf-model="#diamantModel"
+    scale="1 1 1">
+    </a-entity>
+
+</a-entity>
 
 <!-- Graphit -->
 
 <a-entity
 class="interactable"
 position="10 1.5 -10"
-  gltf-model="#graphitModel"
-  scale="0.5 0.5 0.5"
-  grabbable="usePhysics:false; invert:false; suppressY:false"
 grabbable
 stretchable
 draggable
 rotatable>
 
-<a-entity
-
+    <a-entity
+    gltf-model="#graphitModel"
+    scale="1 1 1">
+    </a-entity>
 
 </a-entity>
 
-</a-box>
-
+  
 <!-- Licht -->
 
 <a-entity light="type:ambient; intensity:0.8"></a-entity>
