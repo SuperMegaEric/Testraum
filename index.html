@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Diamant Testraum: Greifen & Skalieren</title>
+    <title>Diamant Fix: Nur bei Trigger-Druck</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
     <script src="https://unpkg.com/super-hands@3.0.4/dist/super-hands.min.js"></script>
@@ -26,8 +26,12 @@
                       super-hands="colliderEvent: raycaster-intersection; 
                                    colliderEventProperty: els; 
                                    colliderEndEvent: raycaster-intersection-cleared; 
-                                   colliderEndEventProperty: el"
-                      raycaster="objects: .interactable; far: 0.3; interval: 100">
+                                   colliderEndEventProperty: el;
+                                   grabStartButtons: triggerdown;
+                                   grabEndButtons: triggerup;
+                                   stretchStartButtons: triggerdown;
+                                   stretchEndButtons: triggerup"
+                      raycaster="objects: .interactable; far: 0.3">
             </a-entity>
 
             <a-entity id="rightHand"
@@ -35,8 +39,12 @@
                       super-hands="colliderEvent: raycaster-intersection; 
                                    colliderEventProperty: els; 
                                    colliderEndEvent: raycaster-intersection-cleared; 
-                                   colliderEndEventProperty: el"
-                      raycaster="objects: .interactable; far: 0.3; interval: 100">
+                                   colliderEndEventProperty: el;
+                                   grabStartButtons: triggerdown;
+                                   grabEndButtons: triggerup;
+                                   stretchStartButtons: triggerdown;
+                                   stretchEndButtons: triggerup"
+                      raycaster="objects: .interactable; far: 0.3">
             </a-entity>
         </a-entity>
 
@@ -48,6 +56,7 @@
                   gltf-model="#diamantModel"
                   position="0 1.4 -1"
                   scale="0.5 0.5 0.5"
+                  hoverable
                   grabbable
                   stretchable>
         </a-entity>
@@ -58,7 +67,6 @@
     </a-scene>
 
     <script>
-        // Boden-Textur Generator
         const canvas = document.getElementById('gridCanvas');
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = 'white';
