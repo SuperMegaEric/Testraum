@@ -61,11 +61,8 @@ el.setAttribute('visible', visible);
 <a-entity
 id="leftHand"
 laser-controls="hand: left"
-super-hands="
-grabStartButtons: gripdown;
-grabEndButtons: gripup;
-stretchStartButtons: gripdown;
-stretchEndButtons: gripup"
+tracked-controls="hand: left"
+super-hands="grabStartButtons: gripdown; grabEndButtons: gripup; stretchStartButtons: gripdown; stretchEndButtons: gripup"
 sphere-collider="objects: .interactable; radius: 0.25">
 </a-entity>
 
@@ -73,11 +70,8 @@ sphere-collider="objects: .interactable; radius: 0.25">
 <a-entity
 id="rightHand"
 laser-controls="hand: right"
-super-hands="
-grabStartButtons: gripdown;
-grabEndButtons: gripup;
-stretchStartButtons: gripdown;
-stretchEndButtons: gripup"
+tracked-controls="hand: right"
+super-hands="grabStartButtons: gripdown; grabEndButtons: gripup; stretchStartButtons: gripdown; stretchEndButtons: gripup"
 sphere-collider="objects: .interactable; radius: 0.25">
 </a-entity>
 
@@ -85,42 +79,35 @@ sphere-collider="objects: .interactable; radius: 0.25">
 
 <!-- Diamant -->
 
-<a-box
+<a-entity
 class="interactable"
 position="-10 1.5 -10"
-width="3"
-height="3"
-depth="3"
-material="color:red; transparent:true; opacity:0.35"
+gltf-model="#diamantModel"
+scale="0.5 0.5 0.5"
+  grabbable="usePhysics:false; invert:false; suppressY:false"
 grabbable
 stretchable
-draggable
-rotatable>
-
-<a-entity
-gltf-model="#diamantModel"
-scale="1 1 1">
+draggable>
 </a-entity>
 
 </a-box>
 
 <!-- Graphit -->
 
-<a-box
+<a-entity
 class="interactable"
 position="10 1.5 -10"
-width="3"
-height="3"
-depth="3"
-material="color:red; transparent:true; opacity:0.35"
+  gltf-model="#graphitModel"
+  scale="0.5 0.5 0.5"
+  grabbable="usePhysics:false; invert:false; suppressY:false"
 grabbable
 stretchable
 draggable
 rotatable>
 
 <a-entity
-gltf-model="#graphitModel"
-scale="1 1 1">
+
+
 </a-entity>
 
 </a-box>
