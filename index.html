@@ -2,98 +2,85 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>VR Kristallstrukturen</title>
-  
+<title>Pico 4 Ultra VR Diamant</title>
+
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/components/sphere-collider.min.js"></script>
+<script>
+AFRAME.registerComponent('grab-parent', {
+  init: function () {
+    this.grabbed = false;
+    this.originalParent = this.el.parentEl;
+    this.leftHand = document.querySelector('#leftHand');
+    this.rightHand = document.querySelector('#rightHand');
 
-<script src="https://unpkg.com/super-hands@3.0.4/dist/super-hands.min.js"></script>
+    // Grip gedrückt
+    this.leftHand.addEventListener('gripdown', () => this.grab(this.leftHand));
+    this.rightHand.addEventListener('gripdown', () => this.grab(this.rightHand));
 
-
+    // Grip losgelassen
+    this.leftHand.addEventListener('gripup', () => this.release());
+    this.rightHand.addEventListener('gripup', () => this.release());
+  },
   
+  grab: function(hand) {
+    if (!this.grabbed) {
+      hand.appendChild(this.el);
+      this.grabbed = true;
+    }
+  },
+  
+  release: function() {
+    if (this.grabbed) {
+      this.originalParent.appendChild(this.el);
+      this.grabbed = false;
+    }
+  }
+});
+</script>
 </head>
 
 <body>
-
 <a-scene>
 
-<!-- Umgebung -->
-<a-entity environment="preset: forest; skyType: atmosphere; skyColor: #88ccee"></a-entity>
+  <!-- Assets -->
+  <a-assets>
+    <a-asset-item id="diamantModel" src="Diamant.glb"></a-asset-item>
+  </a-assets>
 
-<a-assets>
+  <!-- Player Rig -->
+  <a-entity id="rig" movement-controls="speed:0.25">
+    <a-entity camera position="0 1.6 0" look-controls></a-entity>
 
-<a-asset-item id="diamantModel" src="Diamant.glb"></a-asset-item>
-<a-asset-item id="graphitModel" src="Graphit.glb"></a-asset-item>
-
-</a-assets>
-
-<!-- Spieler -->
-<a-entity id="rig" movement-controls="speed:0.25">
-
-<a-entity camera position="0 1.6 0" look-controls></a-entity>
-
-<!-- linke Hand -->
-<a-entity
-id="leftHand"
-laser-controls="hand: left"
-super-hands="grabStartButtons: gripdown; grabEndButtons: gripup; stretchStartButtons: gripdown; stretchEndButtons: gripup"
-sphere-collider="objects: .interactable; radius: 0.35">
-</a-entity>
-
-<!-- rechte Hand -->
-<a-entity
-id="rightHand"
-laser-controls="hand: right"
-super-hands="grabStartButtons: gripdown; grabEndButtons: gripup; stretchStartButtons: gripdown; stretchEndButtons: gripup"
-sphere-collider="objects: .interactable; radius: 0.35">
-</a-entity>
-
-</a-entity>
-
-<!-- Diamant -->
-
-<a-entity
-class="interactable"
-position="-10 1.5 -10"
-grabbable
-stretchable
-draggable
-rotatable>
-
+    <!-- Linke Hand -->
     <a-entity
-    gltf-model="#diamantModel"
-    scale="1 1 1">
+      id="leftHand"
+      hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc">
     </a-entity>
 
-</a-entity>
-
-<!-- Graphit -->
-
-<a-entity
-class="interactable"
-position="10 1.5 -10"
-grabbable
-stretchable
-draggable
-rotatable>
-
+    <!-- Rechte Hand -->
     <a-entity
-    gltf-model="#graphitModel"
-    scale="1 1 1">
+      id="rightHand"
+      hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc">
     </a-entity>
+  </a-entity>
 
-</a-entity>
+  <!-- Diamant-Modell -->
+  <a-entity
+    id="diamant"
+    class="interactable"
+    position="0 1.5 -2"
+    scale="1 1 1"
+    grab-parent>
+    <a-entity gltf-model="#diamantModel" scale="1 1 1"></a-entity>
+  </a-entity>
 
-  
-<!-- Licht -->
-
-<a-entity light="type:ambient; intensity:0.8"></a-entity>
-<a-entity light="type:directional; intensity:0.6" position="1 4 2"></a-entity>
+  <!-- Licht -->
+  <a-entity light="type: ambient; intensity:0.8"></a-entity>
+  <a-entity light="type: directional; intensity:0.6" position="1 4 2"></a-entity>
 
 </a-scene>
-
 </body>
 </html>
