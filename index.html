@@ -2,22 +2,21 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>VR Moleküle: Single Laser Fix</title>
+    <title>VR Moleküle: Snap-to-Hand & Parenting</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
     <script src="https://unpkg.com/super-hands@3.0.4/dist/super-hands.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
 
     <script>
-        // Diese Komponente stellt sicher, dass NUR das getroffene Objekt reagiert
-        AFRAME.registerComponent('laser-listen', {
+        // Highlight-Komponente: Grün beim Greifen
+        AFRAME.registerComponent('grab-effect', {
             init: function () {
-                this.el.addEventListener('grab-start', (evt) => {
-                    // Visuelles Feedback: Box wird grün
+                this.el.addEventListener('grab-start', () => {
                     this.el.setAttribute('material', 'color', '#00ff00');
-                    this.el.setAttribute('material', 'opacity', '0.6');
+                    this.el.setAttribute('material', 'opacity', '0.5');
                 });
-                this.el.addEventListener('grab-end', (evt) => {
+                this.el.addEventListener('grab-end', () => {
                     this.el.setAttribute('material', 'color', '#ff0000');
                     this.el.setAttribute('material', 'opacity', '0.2');
                 });
@@ -41,29 +40,29 @@
 
             <a-entity id="leftHand"
                       hand-controls="hand: left"
-                      super-hands="colliderEvent: raycaster-intersection; 
+                      super-hands="colliderEvent: collisions; 
                                    colliderEventProperty: els; 
-                                   colliderEndEvent: raycaster-intersection-cleared; 
-                                   colliderEndEventProperty: el;
+                                   colliderEndEvent: collisions; 
+                                   colliderEndEventProperty: clearedEls;
                                    grabStartButtons: triggerdown; 
                                    grabEndButtons: triggerup;
                                    stretchStartButtons: triggerdown;
-                                   stretchEndButtons: triggerup">
-                <a-entity raycaster="objects: .interactable; far: 20; showLine: true; lineColor: red"
-                          position="0 -0.15 0"
-                          rotation="-90 0 0">
-                </a-entity>
+                                   stretchEndButtons: triggerup"
+                      sphere-collider="objects: .interactable; radius: 0.15">
             </a-entity>
 
             <a-entity id="rightHand"
                       hand-controls="hand: right"
-                      super-hands="colliderEvent: raycaster-intersection; 
+                      super-hands="colliderEvent: collisions; 
                                    colliderEventProperty: els; 
-                                   colliderEndEvent: raycaster-intersection-cleared; 
-                                   colliderEndEventProperty: el;
+                                   colliderEndEvent: collisions; 
+                                   colliderEndEventProperty: clearedEls;
+                                   grabStartButtons: triggerdown; 
+                                   grabEndButtons: triggerup;
                                    stretchStartButtons: triggerdown;
-                                   stretchEndButtons: triggerup">
-                </a-entity>
+                                   stretchEndButtons: triggerup"
+                      sphere-collider="objects: .interactable; radius: 0.15">
+            </a-entity>
         </a-entity>
 
         <a-plane position="0 0.01 0" rotation="-90 0 0" width="100" height="100"
@@ -71,19 +70,19 @@
         </a-plane>
 
         <a-box class="interactable"
-               position="-5 1.5 -10"
-               width="2" height="2" depth="2"
+               position="-2 1.5 -3" 
+               width="1.2" height="1.2" depth="1.2"
                material="color: #ff0000; opacity: 0.2; transparent: true"
-               grabbable stretchable laser-listen>
-            <a-entity gltf-model="#diamantModel" scale="1 1 1" position="0 0 0"></a-entity>
+               grabbable stretchable grab-effect>
+            <a-entity gltf-model="#diamantModel" scale="0.8 0.8 0.8" position="0 0 0"></a-entity>
         </a-box>
 
         <a-box class="interactable"
-               position="5 1.5 -10"
-               width="2" height="2" depth="2"
+               position="2 1.5 -3"
+               width="1.2" height="1.2" depth="1.2"
                material="color: #ff0000; opacity: 0.2; transparent: true"
-               grabbable stretchable laser-listen>
-            <a-entity gltf-model="#graphitModel" scale="1 1 1" position="0 0 0"></a-entity>
+               grabbable stretchable grab-effect>
+            <a-entity gltf-model="#graphitModel" scale="0.8 0.8 0.8" position="0 0 0"></a-entity>
         </a-box>
 
         <a-entity light="type: ambient; intensity: 0.7"></a-entity>
