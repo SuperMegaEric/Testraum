@@ -6,7 +6,7 @@
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
 <script>
-// Component: Wrapper folgt Hand nur bei gedrücktem Grip
+// Komponente: Wrapper folgt Hand nur bei gedrücktem Grip
 AFRAME.registerComponent('grab-wrapper', {
   schema: { handLeft: {type: 'selector'}, handRight: {type: 'selector'} },
 
@@ -74,14 +74,11 @@ AFRAME.registerComponent('grab-wrapper', {
   <!-- Player Rig -->
   <a-entity id="rig" movement-controls="speed:0.25">
     <a-entity camera position="0 1.6 0" look-controls></a-entity>
-
-    <!-- Linke Hand -->
     <a-entity id="leftHand" hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
-    <!-- Rechte Hand -->
     <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
   </a-entity>
 
-  <!-- Diamant Wrapper + Modell -->
+  <!-- Diamant Wrapper außerhalb des Rig -->
   <a-entity id="diamant-wrapper" grab-wrapper="handLeft: #leftHand; handRight: #rightHand" position="0 1.5 -2">
     <a-entity gltf-model="#diamantModel" scale="0.25 0.25 0.25"></a-entity>
   </a-entity>
