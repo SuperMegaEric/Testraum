@@ -6,38 +6,60 @@
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
 <script>
-// Komponente: Parent-Wrapper-Grabbing
-AFRAME.registerComponent('hand-grab', {
+// Komponente: Greifen + Rotation im Weltkoordinatensystem
+AFRAME.registerComponent('grab-world', {
   schema: { handLeft: {type: 'selector'}, handRight: {type: 'selector'} },
 
   init: function() {
     this.grabbed = false;
     this.activeHand = null;
+    this.offset = new THREE.Vector3();
+    this.quatOffset = new THREE.Quaternion();
 
     const startGrab = (hand) => {
       if (this.grabbed) return;
+
       this.grabbed = true;
       this.activeHand = hand;
-      // Parent das Modell an die Hand
-      this.originalParent = this.el.parentEl;
-      hand.appendChild(this.el);
+
+      const handPos = new THREE.Vector3();
+      hand.object3D.getWorldPosition(handPos);
+
+      const modelPos = new THREE.Vector3();
+      this.el.object3D.getWorldPosition(modelPos);
+
+      this.offset.copy(modelPos).sub(handPos);
+
+      const handQuat = new THREE.Quaternion();
+      hand.object3D.getWorldQuaternion(handQuat);
+      const modelQuat = this.el.object3D.getWorldQuaternion(new THREE.Quaternion());
+      this.quatOffset.copy(handQuat.inverse()).multiply(modelQuat);
     };
 
     const endGrab = () => {
-      if (!this.grabbed) return;
       this.grabbed = false;
-      // Detach vom Hand-Parent und zurück zum Original
-      this.originalParent.appendChild(this.el);
       this.activeHand = null;
     };
 
-    // Events für linke Hand
     this.data.handLeft.addEventListener('gripdown', () => startGrab(this.data.handLeft));
     this.data.handLeft.addEventListener('gripup', endGrab);
-
-    // Events für rechte Hand
     this.data.handRight.addEventListener('gripdown', () => startGrab(this.data.handRight));
     this.data.handRight.addEventListener('gripup', endGrab);
+  },
+
+  tick: function() {
+    if (!this.grabbed || !this.activeHand) return;
+
+    const handPos = new THREE.Vector3();
+    const handQuat = new THREE.Quaternion();
+    this.activeHand.object3D.getWorldPosition(handPos);
+    this.activeHand.object3D.getWorldQuaternion(handQuat);
+
+    const newPos = new THREE.Vector3().copy(this.offset).applyQuaternion(handQuat).add(handPos);
+    const newQuat = new THREE.Quaternion().copy(handQuat).multiply(this.quatOffset);
+
+    this.el.object3D.position.copy(newPos);
+    this.el.object3D.quaternion.copy(newQuat);
   }
 });
 </script>
@@ -58,9 +80,9 @@ AFRAME.registerComponent('hand-grab', {
     <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
   </a-entity>
 
-  <!-- Diamant-Modell (außerhalb des Rig!) -->
+  <!-- Diamant-Modell außerhalb des Rig -->
   <a-entity id="diamant" position="0 1.5 -2" scale="0.25 0.25 0.25"
-            hand-grab="handLeft: #leftHand; handRight: #rightHand">
+            grab-world="handLeft: #leftHand; handRight: #rightHand">
     <a-entity gltf-model="#diamantModel" scale="1 1 1"></a-entity>
   </a-entity>
 
