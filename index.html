@@ -2,19 +2,17 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>VR Moleküle: Finale Steuerung</title>
+    <title>VR Moleküle: 10m Distanz & Precision Laser</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
     <script src="https://unpkg.com/super-hands@3.0.4/dist/super-hands.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
 
     <script>
-        // Vereinfachtes Highlight: NUR beim Greifen/Skalieren
+        // Highlight-Komponente: NUR beim Greifen/Skalieren grün leuchten
         AFRAME.registerComponent('molecule-highlight', {
             init: function () {
-                // Wenn gegriffen wird -> Grün
                 this.el.addEventListener('grab-start', () => this.updateColor('#00ff00', 0.8));
-                // Wenn losgelassen wird -> Normal (Schwarz/0 Intensity)
                 this.el.addEventListener('grab-end', () => this.updateColor('#000000', 0));
             },
             updateColor: function (color, intensity) {
@@ -37,10 +35,11 @@
 
         <a-assets>
             <a-asset-item id="diamantModel" src="Diamant.glb"></a-asset-item>
+            <a-asset-item id="graphitModel" src="Graphit.glb"></a-asset-item>
             <canvas id="gridCanvas" width="128" height="128"></canvas>
         </a-assets>
 
-        <a-entity id="rig" movement-controls="speed: 0.15">
+        <a-entity id="rig" movement-controls="speed: 0.2">
             <a-entity camera position="0 1.6 0" look-controls></a-entity>
 
             <a-entity id="leftHand"
@@ -51,9 +50,9 @@
                                    colliderEndEventProperty: el;
                                    grabStartButtons: triggerdown; grabEndButtons: triggerup;
                                    stretchStartButtons: triggerdown; stretchEndButtons: triggerup">
-                <a-entity raycaster="objects: .interactable; far: 5; showLine: true; lineColor: red"
-                          position="0 0 -0.1"
-                          rotation="-65 0 0">
+                <a-entity raycaster="objects: .interactable; far: 20; showLine: true; lineColor: red"
+                          position="0 -0.05 -0.1"
+                          rotation="-90 0 0">
                 </a-entity>
             </a-entity>
 
@@ -65,9 +64,9 @@
                                    colliderEndEventProperty: el;
                                    grabStartButtons: triggerdown; grabEndButtons: triggerup;
                                    stretchStartButtons: triggerdown; stretchEndButtons: triggerup">
-                <a-entity raycaster="objects: .interactable; far: 5; showLine: true; lineColor: red"
-                          position="0 0 -0.1"
-                          rotation="-65 0 0">
+                <a-entity raycaster="objects: .interactable; far: 20; showLine: true; lineColor: red"
+                          position="0 -0.05 -0.1"
+                          rotation="-90 0 0">
                 </a-entity>
             </a-entity>
         </a-entity>
@@ -78,8 +77,18 @@
 
         <a-entity class="interactable"
                   gltf-model="#diamantModel"
-                  position="0 1.4 -2"
-                  scale="0.6 0.6 0.6"
+                  position="-5 1.5 -10"
+                  scale="1 1 1"
+                  hoverable
+                  grabbable
+                  stretchable
+                  molecule-highlight>
+        </a-entity>
+
+        <a-entity class="interactable"
+                  gltf-model="#graphitModel"
+                  position="5 1.5 -10"
+                  scale="1 1 1"
                   hoverable
                   grabbable
                   stretchable
