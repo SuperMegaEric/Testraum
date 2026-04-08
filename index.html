@@ -2,151 +2,106 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>VR Moleküle – Interaktion</title>
+<title>VR Kristallstrukturen</title>
 
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+
+<script src="https://unpkg.com/super-hands@3.0.4/dist/super-hands.min.js"></script>
+
 <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/components/sphere-collider.min.js"></script>
-  
-<script>
-// ================================
-// GRAB SYSTEM
-// ================================
 
-AFRAME.registerComponent('grab-system', {
-  init: function () {
-    const hand = this.el;
-    this.grabbed = null;
-
-    hand.addEventListener('triggerdown', () => {
-      const collider = hand.components['sphere-collider'];
-      if (!collider) return;
-      const hits = collider.intersectedEls;
-      if (!hits.length) return;
-
-      const target = hits[0]; // Erstes Objekt greifen
-      this.grabbed = target;
-
-      // Parent an Hand
-      const worldPos = new THREE.Vector3();
-      const worldQuat = new THREE.Quaternion();
-      target.object3D.getWorldPosition(worldPos);
-      target.object3D.getWorldQuaternion(worldQuat);
-
-      hand.object3D.add(target.object3D);
-      target.object3D.position.copy(hand.object3D.worldToLocal(worldPos));
-      target.object3D.quaternion.copy(worldQuat);
-    });
-
-    hand.addEventListener('triggerup', () => {
-      if (!this.grabbed) return;
-
-      const obj = this.grabbed;
-      const worldPos = new THREE.Vector3();
-      const worldQuat = new THREE.Quaternion();
-      obj.object3D.getWorldPosition(worldPos);
-      obj.object3D.getWorldQuaternion(worldQuat);
-
-      // Zurück in Szene
-      this.el.sceneEl.object3D.add(obj.object3D);
-      obj.object3D.position.copy(worldPos);
-      obj.object3D.quaternion.copy(worldQuat);
-
-      this.grabbed = null;
-    });
-  }
-});
-
-// ================================
-// TWO HAND SCALE & ROTATION
-// ================================
-
-AFRAME.registerComponent('two-hand-system', {
-  tick: function () {
-    const left = document.querySelector('#leftHand').components['grab-system']?.grabbed;
-    const right = document.querySelector('#rightHand').components['grab-system']?.grabbed;
-
-    if (!left || !right) return;
-    if (left !== right) return; // Beide Hände müssen dasselbe Objekt greifen
-
-    const obj = left;
-    const leftPos = new THREE.Vector3();
-    const rightPos = new THREE.Vector3();
-    document.querySelector('#leftHand').object3D.getWorldPosition(leftPos);
-    document.querySelector('#rightHand').object3D.getWorldPosition(rightPos);
-
-    // DISTANZ = SKALIERUNG
-    const currentDistance = leftPos.distanceTo(rightPos);
-    if (!obj.startDistance) {
-      obj.startDistance = currentDistance;
-      obj.startScale = obj.object3D.scale.clone();
-    }
-
-    const scaleFactor = currentDistance / obj.startDistance;
-    obj.object3D.scale.set(
-      obj.startScale.x * scaleFactor,
-      obj.startScale.y * scaleFactor,
-      obj.startScale.z * scaleFactor
-    );
-
-    // ROTATION
-    const dir = new THREE.Vector3().subVectors(rightPos, leftPos).normalize();
-    const up = new THREE.Vector3(0, 1, 0);
-    const quaternion = new THREE.Quaternion().setFromUnitVectors(up, dir);
-    obj.object3D.quaternion.copy(quaternion);
-  }
-});
-
-</script>
 </head>
+
 <body>
 
-<a-scene two-hand-system>
+<a-scene>
 
-  <!-- ENVIRONMENT -->
-  <a-entity environment="preset: forest; skyColor: #88ccee; lighting: distant; groundTexture: walkernoise; groundColor: #6ab04c">
-  </a-entity>
+<!-- Environment -->
+<a-entity environment="preset: forest; skyType: atmosphere; skyColor: #88ccee"></a-entity>
 
-  <a-assets>
-    <a-asset-item id="diamantModel" src="Diamant.glb"></a-asset-item>
-    <a-asset-item id="graphitModel" src="Graphit.glb"></a-asset-item>
-  </a-assets>
+<a-assets>
 
-  <!-- RIG + HANDS -->
-  <a-entity id="rig" movement-controls="speed:0.25">
-    <a-entity camera position="0 1.6 0" look-controls></a-entity>
+<a-asset-item id="diamantModel" src="Diamant.glb"></a-asset-item>
+<a-asset-item id="graphitModel" src="Graphit.glb"></a-asset-item>
+
+</a-assets>
+
+<!-- Player -->
+<a-entity id="rig" position="0 0 0">
+
+<a-entity camera position="0 1.6 0" look-controls></a-entity>
+
+<!-- Linke Hand -->
 <a-entity
-    id="leftHand"
-    laser-controls="hand: left"
-    sphere-collider="objects: .hitbox; radius: 0.25"
-    grab-system>
+id="leftHand"
+laser-controls="hand: left"
+super-hands="
+grabStartButtons: gripdown;
+grabEndButtons: gripup;
+stretchStartButtons: gripdown;
+stretchEndButtons: gripup"
+sphere-collider="objects: .interactable; radius: 0.2">
 </a-entity>
 
+<!-- Rechte Hand -->
 <a-entity
-    id="rightHand"
-    laser-controls="hand: right"
-    sphere-collider="objects: .hitbox; radius: 0.25"
-    grab-system>
+id="rightHand"
+laser-controls="hand: right"
+super-hands="
+grabStartButtons: gripdown;
+grabEndButtons: gripup;
+stretchStartButtons: gripdown;
+stretchEndButtons: gripup"
+sphere-collider="objects: .interactable; radius: 0.2">
 </a-entity>
-    </a-entity>
-  </a-entity>
 
-  <!-- DIAMANT -->
-  <a-box class="hitbox" position="-10 1.5 -10" width="1.8" height="1.8" depth="1.8"
-         material="color:red; opacity:0.35; transparent:true">
-    <a-entity gltf-model="#diamantModel" scale="1 1 1"></a-entity>
-  </a-box>
+</a-entity>
 
-  <!-- GRAPHIT -->
-  <a-box class="hitbox" position="10 1.5 -10" width="1.8" height="1.8" depth="1.8"
-         material="color:red; opacity:0.35; transparent:true">
-    <a-entity gltf-model="#graphitModel" scale="1 1 1"></a-entity>
-  </a-box>
+<!-- Diamant -->
 
-  <!-- LIGHTS -->
-  <a-entity light="type:ambient; intensity:0.9"></a-entity>
-  <a-entity light="type:directional; intensity:0.6" position="1 4 2"></a-entity>
+<a-box
+class="interactable"
+position="-10 1.5 -10"
+depth="2"
+height="2"
+width="2"
+material="color: red; transparent: true; opacity: 0.35"
+grabbable
+stretchable
+draggable
+>
+
+<a-entity
+gltf-model="#diamantModel"
+scale="1 1 1">
+</a-entity>
+
+</a-box>
+
+<!-- Graphit -->
+
+<a-box
+class="interactable"
+position="10 1.5 -10"
+depth="2"
+height="2"
+width="2"
+material="color: red; transparent: true; opacity: 0.35"
+grabbable
+stretchable
+draggable
+>
+
+<a-entity
+gltf-model="#graphitModel"
+scale="1 1 1">
+</a-entity>
+
+</a-box>
+
+<!-- Licht -->
+<a-entity light="type: ambient; intensity: 0.8"></a-entity>
+<a-entity light="type: directional; intensity: 0.6" position="1 4 2"></a-entity>
 
 </a-scene>
 
