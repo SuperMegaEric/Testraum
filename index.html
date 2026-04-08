@@ -2,12 +2,12 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Pico 4 Ultra VR Diamant – funktionierendes Greifen</title>
+<title>Pico 4 Ultra VR Diamant – Greifen & Rotation</title>
 <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
 <script>
-// Komponente: Modell folgt Hand nur bei gedrücktem Grip mit Offset
-AFRAME.registerComponent('grab-with-offset', {
+// Component: Wrapper folgt Hand nur bei gedrücktem Grip
+AFRAME.registerComponent('grab-wrapper', {
   schema: { handLeft: {type: 'selector'}, handRight: {type: 'selector'} },
 
   init: function() {
@@ -19,15 +19,15 @@ AFRAME.registerComponent('grab-with-offset', {
       const handPos = new THREE.Vector3();
       hand.object3D.getWorldPosition(handPos);
 
-      const modelPos = new THREE.Vector3();
-      this.el.object3D.getWorldPosition(modelPos);
+      const wrapperPos = new THREE.Vector3();
+      this.el.object3D.getWorldPosition(wrapperPos);
 
-      this.offset.copy(modelPos).sub(handPos);
+      this.offset.copy(wrapperPos).sub(handPos);
 
       const handQuat = new THREE.Quaternion();
       hand.object3D.getWorldQuaternion(handQuat);
-      const modelQuat = this.el.object3D.getWorldQuaternion(new THREE.Quaternion());
-      this.quatOffset.copy(handQuat.inverse()).multiply(modelQuat);
+      const wrapperQuat = this.el.object3D.getWorldQuaternion(new THREE.Quaternion());
+      this.quatOffset.copy(handQuat.inverse()).multiply(wrapperQuat);
 
       this.grabbed = true;
       this.activeHand = hand;
@@ -38,7 +38,6 @@ AFRAME.registerComponent('grab-with-offset', {
       this.activeHand = null;
     };
 
-    // Grip Events registrieren
     this.data.handLeft.addEventListener('gripdown', () => startGrab(this.data.handLeft));
     this.data.handLeft.addEventListener('gripup', endGrab);
 
@@ -82,10 +81,9 @@ AFRAME.registerComponent('grab-with-offset', {
     <a-entity id="rightHand" hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc"></a-entity>
   </a-entity>
 
-  <!-- Diamant-Modell -->
-  <a-entity id="diamant" position="0 1.5 -2" scale="0.25 0.25 0.25"
-            grab-with-offset="handLeft: #leftHand; handRight: #rightHand">
-    <a-entity gltf-model="#diamantModel" scale="1 1 1"></a-entity>
+  <!-- Diamant Wrapper + Modell -->
+  <a-entity id="diamant-wrapper" grab-wrapper="handLeft: #leftHand; handRight: #rightHand" position="0 1.5 -2">
+    <a-entity gltf-model="#diamantModel" scale="0.25 0.25 0.25"></a-entity>
   </a-entity>
 
   <!-- Licht -->
