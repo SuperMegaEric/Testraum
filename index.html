@@ -2,18 +2,24 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>VR Moleküle: 10m Distanz & Precision Laser</title>
+    <title>VR Moleküle: Präzisions-Anpassung</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
     <script src="https://unpkg.com/super-hands@3.0.4/dist/super-hands.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
 
     <script>
-        // Highlight-Komponente: NUR beim Greifen/Skalieren grün leuchten
+        // Highlight-Komponente: Färbt das jeweils gegriffene Modell grün
         AFRAME.registerComponent('molecule-highlight', {
             init: function () {
-                this.el.addEventListener('grab-start', () => this.updateColor('#00ff00', 0.8));
-                this.el.addEventListener('grab-end', () => this.updateColor('#000000', 0));
+                // Beim Greifen grün leuchten
+                this.el.addEventListener('grab-start', (evt) => {
+                    this.updateColor('#00ff00', 0.8);
+                });
+                // Beim Loslassen Normalzustand
+                this.el.addEventListener('grab-end', (evt) => {
+                    this.updateColor('#000000', 0);
+                });
             },
             updateColor: function (color, intensity) {
                 const mesh = this.el.getObject3D('mesh');
@@ -51,7 +57,7 @@
                                    grabStartButtons: triggerdown; grabEndButtons: triggerup;
                                    stretchStartButtons: triggerdown; stretchEndButtons: triggerup">
                 <a-entity raycaster="objects: .interactable; far: 20; showLine: true; lineColor: red"
-                          position="0 -0.05 -0.1"
+                          position="0 -0.1 -0.1"
                           rotation="-90 0 0">
                 </a-entity>
             </a-entity>
@@ -65,7 +71,7 @@
                                    grabStartButtons: triggerdown; grabEndButtons: triggerup;
                                    stretchStartButtons: triggerdown; stretchEndButtons: triggerup">
                 <a-entity raycaster="objects: .interactable; far: 20; showLine: true; lineColor: red"
-                          position="0 -0.05 -0.1"
+                          position="0 -0.1 -0.1"
                           rotation="-90 0 0">
                 </a-entity>
             </a-entity>
